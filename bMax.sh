@@ -56,8 +56,10 @@ installFlutter(){
 ##### Information Window #####
 information(){
     msgDependecie="Repositories have been updated and the following items have been installed:Build-essential and Yad"
-    msgFailed="If the message appears in the terminal:Gtk-Message: Failed to load module \"pantheon-filechooser-module\" You can remove using the: sudo rm /etc/profile.d/pantheon-filechooser-module.shOr click the remove button below."
-    yad --text="$msgDependecie$msgFailed" --title="$1" --text-align=center --button=gtk-remove:"sudo rm /etc/profile.d/pantheon-filechooser-module.sh" --button=gtk-ok
+    msgWarning="If the message appears in the terminal:"
+    msgTerminal="Gtk-Message: Failed to load module \"pantheon-filechooser-module\" "
+    msgToFix="You can remove using the: sudo rm /etc/profile.d/pantheon-filechooser-module.sh Or click the remove button below."
+    yad --text="$msgDependecie\n$msgWarning\n$msgTerminal\n$msgToFix" --title="$1" --text-align=center --button=gtk-remove:"sudo rm /etc/profile.d/pantheon-filechooser-module.sh" --button=gtk-ok
     clear
     echo -e "$name $version $welcomeTitle";
 }
@@ -91,6 +93,7 @@ mainNotebook(){
     
     yad --plug="$id" --tabnum=1 --form --scroll --field="qBittorrent:FBTN" "bash -c 'installUtilities \"qbittorrent\"' " \
     --field="Curl:FBTN" "bash -c 'installUtilities \"curl\"' " \
+    --field="Gdebi:FBTN" "bash -c 'installUtilities \"gdebi\"' " \
     --field="Brave:FBTN" "bash -c 'installUtilities \"brave\"'" &
     
     yad --plug="$id" --tabnum=2 --form --scroll --field="Git:FBTN" "bash -c 'installUtilities \"git\"' " \
