@@ -9,19 +9,19 @@ welcomeTitle="Hello, m0rk here!";
 interfaceAbout(){
     msgAbout="Version: $1"
     msgMain="By: Mork / Lee Ashley"
-    yad --text="$msgAbout\n\n$msgMain" --title="About" --text-align=center --button=gtk-ok
+    yad --text="$msgAbout$msgMain" --title="About" --text-align=center --button=gtk-ok
 }
 
 ##### Install DartSdk Function #####
 installDartSdk(){
     passUser=$1
     clear
-    echo -e "\nInstalling the DartSDK..."
-    echo -e "$1\n" | sudo -S apt-get update > /dev/null 2>&1
+    echo -e "Installing the DartSDK..."
+    echo -e "$1" | sudo -S apt-get update > /dev/null 2>&1
     sudo apt-get install apt-transport-https > /dev/null 2>&1
     curlDartSdk=$(sudo sh -c 'curl https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -' 2>&1);
     if [ $? != 0 ]; then
-        echo -e "An error occurred in DartSDK dependencies:\n""$curlDartSdk"
+        echo -e "An error occurred in DartSDK dependencies:""$curlDartSdk"
         exit
     fi
     sudo sh -c 'curl https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list' > /dev/null 2>&1
@@ -35,31 +35,31 @@ installDartSdk(){
 installFlutter(){
     passUser=$1
     clear
-    echo -e "\nInstalling the Flutter..."
-    echo -e "Starting flutter download...\n"
+    echo -e "Installing the Flutter..."
+    echo -e "Starting flutter download..."
     curlFlutter=$(curl --url https://storage.googleapis.com/flutter_infra/releases/stable/linux/flutter_linux_v1.2.1-stable.tar.xz --output $HOME/flutter.tar.xz);
     commandExit=$?
     if [ $commandExit = 143 ]; then
         rm -f $HOME/flutter.tar.xz
-        echo -e "\nStoped installing flutter and removed file."
+        echo -e "Stoped installing flutter and removed file."
         elif [ $commandExit != 0 ]; then
-        echo -e "An error occurred in Flutter dependencies\n$curlFlutter"
+        echo -e "An error occurred in Flutter dependencies$curlFlutter"
     else
         tar xf $HOME/flutter.tar.xz -C $HOME 2>&1
         rm -f $HOME/flutter.tar.xz 2>&1
-        echo -e "$passUser\n" | sudo -S echo 'export PATH="$PATH:$HOME/flutter/bin"' >> ~/.profile
+        echo -e "$passUser" | sudo -S echo 'export PATH="$PATH:$HOME/flutter/bin"' >> ~/.profile
         #export PATH="$PATH:$HOME/flutter/bin"
-        echo -e "\nFlutter installed and configured successfully."
+        echo -e "Flutter installed and configured successfully."
     fi
 }
 
 ##### Information Window #####
 information(){
-    msgDependecie="Repositories have been updated and the following items have been installed:\nBuild-essential and Yad"
-    msgFailed="If the message appears in the terminal:\nGtk-Message: Failed to load module \"pantheon-filechooser-module\" \nYou can remove using the: sudo rm /etc/profile.d/pantheon-filechooser-module.sh\nOr click the remove button below."
-    yad --text="$msgDependecie\n\n$msgFailed" --title="$1" --text-align=center --button=gtk-remove:"sudo rm /etc/profile.d/pantheon-filechooser-module.sh" --button=gtk-ok
+    msgDependecie="Repositories have been updated and the following items have been installed:Build-essential and Yad"
+    msgFailed="If the message appears in the terminal:Gtk-Message: Failed to load module \"pantheon-filechooser-module\" You can remove using the: sudo rm /etc/profile.d/pantheon-filechooser-module.shOr click the remove button below."
+    yad --text="$msgDependecie$msgFailed" --title="$1" --text-align=center --button=gtk-remove:"sudo rm /etc/profile.d/pantheon-filechooser-module.sh" --button=gtk-ok
     clear
-    echo -e "$name $version \n$welcomeTitle";
+    echo -e "$name $version $welcomeTitle";
 }
 
 installBraveBrowser(){
@@ -77,7 +77,7 @@ installUtilities(){
     if [ $1 == "brave" ]; then
         installBraveBrowser
     else
-        echo -e "$senhaUser\n" | sudo apt install $1 2>&1
+        echo -e "$senhaUser" | sudo apt install $1 2>&1
         clear
         echo -e "$1" "successfully installed."
     fi
@@ -110,7 +110,7 @@ mainNotebook(){
 ##### Main Function #####
 main(){
     clear
-    echo -e "$name $version \n$welcomeTitle";
+    echo -e "$name $version $welcomeTitle";
     echo "Enter your password to download the dependencies and execute the later commands.";
     echo -n Password:
     read -s senhaUser
@@ -119,12 +119,12 @@ main(){
     if [ $verifyDependencie = 252 ]; then
         mainNotebook $senhaUser
     else
-        echo -e "\nChecking dependencies...";
-        yadInstall=$(echo -e "$senhaUser\n" | sudo -S apt update 2>&1 && sudo apt install build-essential 2>&1 && sudo apt install yad 2>&1)
+        echo -e "Checking dependencies...";
+        yadInstall=$(echo -e "$senhaUser" | sudo -S apt update 2>&1 && sudo apt install build-essential 2>&1 && sudo apt install yad 2>&1)
         if [ $? != 0 ]; then
-            echo -e "An error occurred in the dependencies:\n""$yadInstall"
+            echo -e "An error occurred in the dependencies:""$yadInstall"
         else
-            echo -e "\nDependencies successfully installed."
+            echo -e "Dependencies successfully installed."
             mainNotebook $senhaUser
         fi
     fi
