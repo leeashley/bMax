@@ -76,12 +76,15 @@ installBraveBrowser(){
 
 ##### Install Utilities Function #####
 installUtilities(){
-    if [ $1 == "brave" ]; then
+    passUser=$1
+    if [ $2 == "brave" ]; then
         installBraveBrowser
+    elif [ $2 == "update" ]; then
+        echo -e "$passUser" | sudo -S apt update && sudo apt upgrade  
     else
-        echo -e "$senhaUser" | sudo apt install $1 2>&1
+        echo -e "$passUser" | sudo -S apt install $2 2>&1
         clear
-        echo -e "$1" "successfully installed."
+        echo -e "$2" "successfully installed."
     fi
 }
 
@@ -92,10 +95,11 @@ mainNotebook(){
     id=$(echo $[($RANDOM % ($[10000 - 32000] + 1)) + 10000] )
     
     yad --plug="$id" --tabnum=1 --form --scroll --field="qBittorrent:FBTN" "bash -c 'installUtilities \"qbittorrent\"' " \
-    --field="Curl:FBTN" "bash -c 'installUtilities \"curl\"' " \
-    --field="Gdebi:FBTN" "bash -c 'installUtilities \"gdebi\"' " \
-    --field="Brave:FBTN" "bash -c 'installUtilities \"brave\"'" &
-    
+    --field="Curl:FBTN" "bash -c 'installUtilities \"$1\" \"curl\"' " \
+    --field="Gdebi:FBTN" "bash -c 'installUtilities \"$1\" \"gdebi\"' " \
+    --field="Brave:FBTN" "bash -c 'installUtilities \"$1\" \"brave\"'" \
+    --field="Update Upgrade:FBTN" "bash -c 'installUtilities \"$1\" \"update\"' " &
+
     yad --plug="$id" --tabnum=2 --form --scroll --field="Git:FBTN" "bash -c 'installUtilities \"git\"' " \
     --field="Dart SDK":FBTN "bash -c 'installDartSdk \"$1\"'" \
     --field="Flutter:FBTN" "bash -c 'installFlutter \"$1\"'" &
@@ -107,6 +111,8 @@ mainNotebook(){
     exitMainScript=$?
     if [ $exitMainScript == 252 ] || [ $exitMainScript == 1 ]; then
         pkill -f curl && sleep 1
+    else 
+        exit
     fi
 }
 
