@@ -2,7 +2,7 @@
 
 ##### Global Variables #####
 name="bMax";
-version="0.0.1";
+version="0.0.2";
 welcomeTitle="Hello, m0rk here!";
 
 ##### About Window #####
@@ -65,20 +65,21 @@ information(){
 }
 
 installBraveBrowser(){
-    curl -s https://brave-browser-apt-release.s3.brave.com/brave-core.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -
+    passUser=$1
+    echo -e "$passUser" | sudo -S curl -s https://brave-browser-apt-release.s3.brave.com/brave-core.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -
     
     source /etc/os-release
     
-    echo "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ $UBUNTU_CODENAME main" | sudo tee /etc/apt/sources.list.d/brave-browser-release-${UBUNTU_CODENAME}.list
+    echo -e "$passUser" | sudo -S echo "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ $UBUNTU_CODENAME main" | sudo -S tee /etc/apt/sources.list.d/brave-browser-release-${UBUNTU_CODENAME}.list
     
-    sudo apt update 2>&1 && sudo apt install brave-keyring brave-browser 2>&1 && clear && echo -e "Brave successfully installed."
+    echo -e "$passUser" | sudo -S apt update 2>&1 && sudo apt install brave-keyring brave-browser 2>&1 && clear && echo -e "Brave successfully installed."
 }
 
 ##### Install Utilities Function #####
 installUtilities(){
     passUser=$1
     if [ $2 == "brave" ]; then
-        installBraveBrowser
+        installBraveBrowser $passUser
     elif [ $2 == "update" ]; then
         echo -e "$passUser" | sudo -S apt update && sudo apt upgrade  
     else
