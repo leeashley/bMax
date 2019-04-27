@@ -2,7 +2,7 @@
 
 ##### Global Variables #####
 name="bMax";
-version="0.0.2";
+version="0.1.0";
 welcomeTitle="Hello, m0rk here!";
 
 ##### About Window #####
@@ -72,7 +72,7 @@ installBraveBrowser(){
     
     echo -e "$passUser" | sudo -S echo "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ $UBUNTU_CODENAME main" | sudo -S tee /etc/apt/sources.list.d/brave-browser-release-${UBUNTU_CODENAME}.list
     
-    echo -e "$passUser" | sudo -S apt update 2>&1 && sudo apt install brave-keyring brave-browser 2>&1 && clear && echo -e "Brave successfully installed."
+    echo -e "$passUser" | sudo -S apt update 2>&1 && sudo apt install brave-keyring brave-browser 2>&1 && clear && echo -e "Brave installed."
 }
 
 ##### Install Utilities Function #####
@@ -81,11 +81,15 @@ installUtilities(){
     if [ $2 == "brave" ]; then
         installBraveBrowser $passUser
     elif [ $2 == "update" ]; then
-        echo -e "$passUser" | sudo -S apt update && sudo apt upgrade  
+        echo -e "$passUser" | sudo -S apt update
+    elif [ $2 == "upgrade" ]; then
+        echo -e "$passUser" | sudo -S apt upgrade -y
+    elif [ $2 == "distUpgrade" ]; then
+        echo -e "$passUser" | sudo -S apt dist-upgrade -y
     else
         echo -e "$passUser" | sudo -S apt install $2 2>&1
         clear
-        echo -e "$2" "successfully installed."
+        echo -e "$2" "installed."
     fi
 }
 
@@ -95,17 +99,25 @@ export -f installDartSdk installFlutter interfaceAbout information installUtilit
 mainNotebook(){
     id=$(echo $[($RANDOM % ($[10000 - 32000] + 1)) + 10000] )
     
-    yad --plug="$id" --tabnum=1 --form --scroll --field="qBittorrent:FBTN" "bash -c 'installUtilities \"qbittorrent\"' " \
+    yad --plug="$id" --tabnum=1 --form --scroll \
+    --field="qBittorrent:FBTN" "bash -c 'installUtilities \"qbittorrent\"' " \
     --field="Curl:FBTN" "bash -c 'installUtilities \"$1\" \"curl\"' " \
     --field="Gdebi:FBTN" "bash -c 'installUtilities \"$1\" \"gdebi\"' " \
-    --field="Brave:FBTN" "bash -c 'installUtilities \"$1\" \"brave\"'" \
-    --field="Update Upgrade:FBTN" "bash -c 'installUtilities \"$1\" \"update\"' " &
+    --field="Gnome Tweaks:FBTN" "bash -c 'installUtilities \"$1\" \"gnome-tweaks\"' " \
+    --field="Dconf Editor:FBTN" "bash -c 'installUtilities \"$1\" \"dconf-editor\"' " \
+    --field="Brave:FBTN" "bash -c 'installUtilities \"$1\" \"brave\"'" &
 
-    yad --plug="$id" --tabnum=2 --form --scroll --field="Git:FBTN" "bash -c 'installUtilities \"git\"' " \
+    yad --plug="$id" --tabnum=2 --form --scroll \
+    --field="Git:FBTN" "bash -c 'installUtilities \"git\"' " \
     --field="Dart SDK":FBTN "bash -c 'installDartSdk \"$1\"'" \
     --field="Flutter:FBTN" "bash -c 'installFlutter \"$1\"'" &
+
+    yad --plug="$id" --tabnum=3 --form --scroll \
+    --field="Update:FBTN" "bash -c 'installUtilities \"$1\" \"update\" '" \
+    --field="Upgrade":FBTN "bash -c 'installUtilities \"$1\" \"upgrade\" '" \
+    --field="Dist Upgrade:FBTN" "bash -c 'installUtilities \"$1\" \"distUpgrade\" '" &
     
-    yad --notebook --title="$name" --key="$id" --window-icon="icons/bMaxIcon.png" --tab="Utilities" --tab="Dev Tools" \
+    yad --notebook --title="$name" --key="$id" --window-icon="icons/bMaxIcon.png" --tab="Utilities" --tab="Dev Tools" --tab="Updates"\
     --button=gtk-about:"bash -c 'interfaceAbout \"$version\"'" --button=gtk-info:"bash -c 'information \"$name\"'" \
     --width=250 --height=250 --button=gtk-close:1 --buttons-layout=center
     
