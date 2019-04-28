@@ -2,7 +2,7 @@
 
 ##### Global Variables #####
 name="bMax";
-version="0.1.0";
+version="0.1.1";
 welcomeTitle="Hello, m0rk here!";
 
 ##### About Window #####
@@ -65,14 +65,30 @@ information(){
 }
 
 installBraveBrowser(){
+    # TODO Escolha entre ubuntu e linux mint
+    yad --title="Choice Distribution" --text "What's your distribution?" --center \
+    --button="Ubuntu":31 --button="Linux Mint":96 --buttons-layout=center
+    choiceDistro=$?
     passUser=$1
-    echo -e "$passUser" | sudo -S curl -s https://brave-browser-apt-release.s3.brave.com/brave-core.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -
+    if [ "$choiceDistro" -eq "31" ]; then 
+        echo -e "$passUser" | sudo -S curl -s https://brave-browser-apt-release.s3.brave.com/brave-core.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -
     
-    source /etc/os-release
+        source /etc/os-release
     
-    echo -e "$passUser" | sudo -S echo "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ $UBUNTU_CODENAME main" | sudo -S tee /etc/apt/sources.list.d/brave-browser-release-${UBUNTU_CODENAME}.list
+        echo -e "$passUser" | sudo -S echo "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ $UBUNTU_CODENAME main" | sudo -S tee /etc/apt/sources.list.d/brave-browser-release-${UBUNTU_CODENAME}.list
     
-    echo -e "$passUser" | sudo -S apt update 2>&1 && sudo apt install brave-keyring brave-browser 2>&1 && clear && echo -e "Brave installed."
+        echo -e "$passUser" | sudo -S apt update 2>&1 && sudo apt install brave-keyring brave-browser 2>&1 && clear && echo -e "Brave installed."
+        echo -e "Brave installed."
+    elif [ "$choiceDistro" -eq "96" ]; then
+        echo -e "$passUser" | sudo -S curl -s https://brave-browser-apt-release.s3.brave.com/brave-core.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -
+
+        echo -e "$passUser" | sudo -S echo "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ trusty main" | sudo -S tee /etc/apt/sources.list.d/brave-browser-release-trusty.list
+
+        echo -e "$passUser" | sudo -S apt update
+
+        echo -e "$passUser" | sudo -S apt install brave-keyring brave-browser -y
+        echo -e "Brave installed."
+    fi
 }
 
 ##### Install Utilities Function #####
@@ -87,20 +103,28 @@ installUtilities(){
     elif [ $2 == "distUpgrade" ]; then
         echo -e "$passUser" | sudo -S apt dist-upgrade -y
     else
-        echo -e "$passUser" | sudo -S apt install $2 2>&1
-        clear
+        echo -e "$passUser" | sudo -S apt install $2 -y #2>&1
+        #clear
         echo -e "$2" "installed."
     fi
 }
 
-export -f installDartSdk installFlutter interfaceAbout information installUtilities installBraveBrowser
+alternativeExit(){
+    if [ $1 == 252 ] || [ $1 == 1 ]; then
+        pkill -f curl && sleep 1
+    else 
+        exit
+    fi
+}
+
+export -f installDartSdk installFlutter interfaceAbout information installUtilities installBraveBrowser alternativeExit
 
 ##### MainNotebook Function #####
 mainNotebook(){
     id=$(echo $[($RANDOM % ($[10000 - 32000] + 1)) + 10000] )
     
     yad --plug="$id" --tabnum=1 --form --scroll \
-    --field="qBittorrent:FBTN" "bash -c 'installUtilities \"qbittorrent\"' " \
+    --field="qBittorrent:FBTN" "bash -c 'installUtilities \"$1\" \"qbittorrent\"' " \
     --field="Curl:FBTN" "bash -c 'installUtilities \"$1\" \"curl\"' " \
     --field="Gdebi:FBTN" "bash -c 'installUtilities \"$1\" \"gdebi\"' " \
     --field="Gnome Tweaks:FBTN" "bash -c 'installUtilities \"$1\" \"gnome-tweaks\"' " \
@@ -108,7 +132,7 @@ mainNotebook(){
     --field="Brave:FBTN" "bash -c 'installUtilities \"$1\" \"brave\"'" &
 
     yad --plug="$id" --tabnum=2 --form --scroll \
-    --field="Git:FBTN" "bash -c 'installUtilities \"git\"' " \
+    --field="Git:FBTN" "bash -c 'installUtilities \"$1\" \"git\"' " \
     --field="Dart SDK":FBTN "bash -c 'installDartSdk \"$1\"'" \
     --field="Flutter:FBTN" "bash -c 'installFlutter \"$1\"'" &
 
@@ -117,16 +141,12 @@ mainNotebook(){
     --field="Upgrade":FBTN "bash -c 'installUtilities \"$1\" \"upgrade\" '" \
     --field="Dist Upgrade:FBTN" "bash -c 'installUtilities \"$1\" \"distUpgrade\" '" &
     
-    yad --notebook --title="$name" --key="$id" --window-icon="icons/bMaxIcon.png" --tab="Utilities" --tab="Dev Tools" --tab="Updates"\
+    yad --notebook --title="$name" --key="$id" --window-icon="icons/bMaxIcon.png" --tab="Utilities" --tab="Dev Tools" --tab="Updates" --center\
     --button=gtk-about:"bash -c 'interfaceAbout \"$version\"'" --button=gtk-info:"bash -c 'information \"$name\"'" \
     --width=250 --height=250 --button=gtk-close:1 --buttons-layout=center
     
     exitMainScript=$?
-    if [ $exitMainScript == 252 ] || [ $exitMainScript == 1 ]; then
-        pkill -f curl && sleep 1
-    else 
-        exit
-    fi
+    alternativeExit $exitMainScript
 }
 
 ##### Main Function #####
@@ -142,7 +162,7 @@ main(){
         mainNotebook $senhaUser
     else
         echo -e "Checking dependencies...";
-        yadInstall=$(echo -e "$senhaUser" | sudo -S apt update 2>&1 && sudo apt install build-essential 2>&1 && sudo apt install yad 2>&1)
+        yadInstall=$(echo -e "$senhaUser" | sudo -S apt update 2>&1 && sudo apt install build-essential -y 2>&1 && sudo apt install yad -y 2>&1)
         if [ $? != 0 ]; then
             echo -e "An error occurred in the dependencies:""$yadInstall"
         else
