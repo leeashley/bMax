@@ -5,7 +5,7 @@ source code/mainNotebook.sh
 
 ##### Global Variables #####
 name="bMax";
-version="0.1.1";
+version="0.2.0";
 welcomeTitle="Hello, m0rk here!";
 
 alternativeExit(){
