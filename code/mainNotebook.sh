@@ -30,11 +30,11 @@ mainNotebook(){
     yad --plug="$id" --tabnum=3 --form --scroll \
     --field="Update:FBTN" "bash -c 'installUtilities \"$1\" \"update\" '" \
     --field="Upgrade":FBTN "bash -c 'installUtilities \"$1\" \"upgrade\" '" \
-    --field="Linux headers generic":FBTN "bash -c 'installUtilities \"$1\" \"linux-headers-generic\" '" \
     --field="Dist Upgrade:FBTN" "bash -c 'installUtilities \"$1\" \"distUpgrade\" '" &
 
     yad --plug="$id" --tabnum=4 --form --scroll \
     --field="DPKG Configure:FBTN" "bash -c 'installUtilities \"$1\" \"dpkg --configure -a\"' " \
+    --field="Linux headers generic":FBTN "bash -c 'installUtilities \"$1\" \"linux-headers-generic\" '" \
     --field="Bumblebee:FBTN" "bash -c 'installUtilities \"$1\" \"bumblebee\"' " &
     
     yad --notebook --title="$name" --key="$id" --window-icon="icons/bMaxIcon.png" --tab="Utilities" --tab="Dev Tools" --tab="Updates" --tab="Support" --center\
