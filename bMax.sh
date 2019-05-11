@@ -1,113 +1,12 @@
 #!/bin/bash
 
+##### Imports #####
+source code/mainNotebook.sh
+
 ##### Global Variables #####
 name="bMax";
 version="0.1.1";
 welcomeTitle="Hello, m0rk here!";
-
-##### About Window #####
-interfaceAbout(){
-    msgAbout="Version: $1"
-    msgMain="By: Mork / Lee Ashley"
-    yad --text="$msgAbout$msgMain" --title="About" --text-align=center --button=gtk-ok
-}
-
-##### Install DartSdk Function #####
-installDartSdk(){
-    passUser=$1
-    clear
-    echo -e "Installing the DartSDK..."
-    echo -e "$1" | sudo -S apt-get update > /dev/null 2>&1
-    sudo apt-get install apt-transport-https > /dev/null 2>&1
-    curlDartSdk=$(sudo sh -c 'curl https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -' 2>&1);
-    if [ $? != 0 ]; then
-        echo -e "An error occurred in DartSDK dependencies:""$curlDartSdk"
-        exit
-    fi
-    sudo sh -c 'curl https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list' > /dev/null 2>&1
-    sudo apt-get update > /dev/null 2>&1
-    sudo apt-get install dart > /dev/null 2>&1
-    echo 'export PATH="$PATH:/usr/lib/dart/bin"' >> ~/.profile
-    clear && echo -e "Dart Sdk installed and configured successfully."
-}
-
-##### Install Flutter Function #####
-installFlutter(){
-    passUser=$1
-    clear
-    echo -e "Installing the Flutter..."
-    echo -e "Starting flutter download..."
-    curlFlutter=$(curl --url https://storage.googleapis.com/flutter_infra/releases/stable/linux/flutter_linux_v1.2.1-stable.tar.xz --output $HOME/flutter.tar.xz);
-    commandExit=$?
-    if [ $commandExit = 143 ]; then
-        rm -f $HOME/flutter.tar.xz
-        echo -e "Stoped installing flutter and removed file."
-        elif [ $commandExit != 0 ]; then
-        echo -e "An error occurred in Flutter dependencies$curlFlutter"
-    else
-        tar xf $HOME/flutter.tar.xz -C $HOME 2>&1
-        rm -f $HOME/flutter.tar.xz 2>&1
-        echo -e "$passUser" | sudo -S echo 'export PATH="$PATH:$HOME/flutter/bin"' >> ~/.profile
-        #export PATH="$PATH:$HOME/flutter/bin"
-        echo -e "Flutter installed and configured successfully."
-    fi
-}
-
-##### Information Window #####
-information(){
-    msgDependecie="Repositories have been updated and the following items have been installed:Build-essential and Yad"
-    msgWarning="If the message appears in the terminal:"
-    msgTerminal="Gtk-Message: Failed to load module \"pantheon-filechooser-module\" "
-    msgToFix="You can remove using the: sudo rm /etc/profile.d/pantheon-filechooser-module.sh Or click the remove button below."
-    yad --text="$msgDependecie\n$msgWarning\n$msgTerminal\n$msgToFix" --title="$1" --text-align=center --button=gtk-remove:"sudo rm /etc/profile.d/pantheon-filechooser-module.sh" --button=gtk-ok
-    clear
-    echo -e "$name $version $welcomeTitle";
-}
-
-installBraveBrowser(){
-    # TODO Escolha entre ubuntu e linux mint
-    yad --title="Choice Distribution" --text "What's your distribution?" --center \
-    --button="Ubuntu":31 --button="Linux Mint":96 --buttons-layout=center
-    choiceDistro=$?
-    passUser=$1
-    if [ "$choiceDistro" -eq "31" ]; then 
-        echo -e "$passUser" | sudo -S curl -s https://brave-browser-apt-release.s3.brave.com/brave-core.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -
-    
-        source /etc/os-release
-    
-        echo -e "$passUser" | sudo -S echo "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ $UBUNTU_CODENAME main" | sudo -S tee /etc/apt/sources.list.d/brave-browser-release-${UBUNTU_CODENAME}.list
-    
-        echo -e "$passUser" | sudo -S apt update 2>&1 && sudo apt install brave-keyring brave-browser 2>&1 && clear && echo -e "Brave installed."
-        echo -e "Brave installed."
-    elif [ "$choiceDistro" -eq "96" ]; then
-        echo -e "$passUser" | sudo -S curl -s https://brave-browser-apt-release.s3.brave.com/brave-core.asc | sudo apt-key --keyring /etc/apt/trusted.gpg.d/brave-browser-release.gpg add -
-
-        echo -e "$passUser" | sudo -S echo "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ trusty main" | sudo -S tee /etc/apt/sources.list.d/brave-browser-release-trusty.list
-
-        echo -e "$passUser" | sudo -S apt update
-
-        echo -e "$passUser" | sudo -S apt install brave-keyring brave-browser -y
-        echo -e "Brave installed."
-    fi
-}
-
-##### Install Utilities Function #####
-installUtilities(){
-    passUser=$1
-    if [ $2 == "brave" ]; then
-        installBraveBrowser $passUser
-    elif [ $2 == "update" ]; then
-        echo -e "$passUser" | sudo -S apt update
-    elif [ $2 == "upgrade" ]; then
-        echo -e "$passUser" | sudo -S apt upgrade -y
-    elif [ $2 == "distUpgrade" ]; then
-        echo -e "$passUser" | sudo -S apt dist-upgrade -y
-    else
-        echo -e "$passUser" | sudo -S apt install $2 -y #2>&1
-        #clear
-        echo -e "$2" "installed."
-    fi
-}
 
 alternativeExit(){
     if [ $1 == 252 ] || [ $1 == 1 ]; then
@@ -117,37 +16,7 @@ alternativeExit(){
     fi
 }
 
-export -f installDartSdk installFlutter interfaceAbout information installUtilities installBraveBrowser alternativeExit
-
-##### MainNotebook Function #####
-mainNotebook(){
-    id=$(echo $[($RANDOM % ($[10000 - 32000] + 1)) + 10000] )
-    
-    yad --plug="$id" --tabnum=1 --form --scroll \
-    --field="qBittorrent:FBTN" "bash -c 'installUtilities \"$1\" \"qbittorrent\"' " \
-    --field="Curl:FBTN" "bash -c 'installUtilities \"$1\" \"curl\"' " \
-    --field="Gdebi:FBTN" "bash -c 'installUtilities \"$1\" \"gdebi\"' " \
-    --field="Gnome Tweaks:FBTN" "bash -c 'installUtilities \"$1\" \"gnome-tweaks\"' " \
-    --field="Dconf Editor:FBTN" "bash -c 'installUtilities \"$1\" \"dconf-editor\"' " \
-    --field="Brave:FBTN" "bash -c 'installUtilities \"$1\" \"brave\"'" &
-
-    yad --plug="$id" --tabnum=2 --form --scroll \
-    --field="Git:FBTN" "bash -c 'installUtilities \"$1\" \"git\"' " \
-    --field="Dart SDK":FBTN "bash -c 'installDartSdk \"$1\"'" \
-    --field="Flutter:FBTN" "bash -c 'installFlutter \"$1\"'" &
-
-    yad --plug="$id" --tabnum=3 --form --scroll \
-    --field="Update:FBTN" "bash -c 'installUtilities \"$1\" \"update\" '" \
-    --field="Upgrade":FBTN "bash -c 'installUtilities \"$1\" \"upgrade\" '" \
-    --field="Dist Upgrade:FBTN" "bash -c 'installUtilities \"$1\" \"distUpgrade\" '" &
-    
-    yad --notebook --title="$name" --key="$id" --window-icon="icons/bMaxIcon.png" --tab="Utilities" --tab="Dev Tools" --tab="Updates" --center\
-    --button=gtk-about:"bash -c 'interfaceAbout \"$version\"'" --button=gtk-info:"bash -c 'information \"$name\"'" \
-    --width=250 --height=250 --button=gtk-close:1 --buttons-layout=center
-    
-    exitMainScript=$?
-    alternativeExit $exitMainScript
-}
+export -f alternativeExit
 
 ##### Main Function #####
 main(){
