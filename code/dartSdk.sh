@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export -f installDartSdk
-
 ##### Install DartSdk Function #####
 installDartSdk(){
     passUser=$1
@@ -20,3 +18,5 @@ installDartSdk(){
     echo 'export PATH="$PATH:/usr/lib/dart/bin"' >> ~/.profile
     clear && echo -e "Dart Sdk installed and configured successfully."
 }
+
+export -f installDartSdk

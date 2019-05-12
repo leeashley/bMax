@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export -f information
-
 ##### Information Window #####
 information(){
     clear
@@ -13,3 +11,5 @@ information(){
     clear
     echo -e "$name $version $welcomeTitle";
 }
+
+export -f information

@@ -2,10 +2,16 @@
 
 ##### Imports #####
 source code/mainNotebook.sh
+source code/flutter.sh
+source code/information.sh
+source code/about.sh
+source code/dartSdk.sh
+source code/braveBrowser.sh
+source code/utilities.sh
 
 ##### Global Variables #####
 name="bMax";
-version="0.2.0";
+version="0.2.1";
 welcomeTitle="Hello, m0rk here!";
 
 alternativeExit(){

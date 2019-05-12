@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export -f installBraveBrowser
-
 installBraveBrowser(){
     clear
     yad --title="Choice Distribution" --text "What's your distribution?" --center \
@@ -28,3 +26,5 @@ installBraveBrowser(){
         echo -e "Brave installed."
     fi
 }
+
+export -f installBraveBrowser
